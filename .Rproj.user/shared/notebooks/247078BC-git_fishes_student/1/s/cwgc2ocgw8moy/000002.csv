@@ -1,0 +1,3 @@
+"0","# Drop irrelevant columns"
+"0","Sp_Tr <- subset(comp_data,select=c(""species"",""treatment""))"
+"0","Sp_Tr"

@@ -3,7 +3,7 @@ title: "Git, GitHub & Ocean Acidification"
 author: "<your name and u number>"
 date: "`r Sys.Date()`"
 output: 
- bookdown::html_document2:
+  bookdown::html_document2:
     code_folding: show
     number_sections: no
     toc: yes
@@ -121,8 +121,8 @@ First, write some code below to remove missing data
 
 ```{r rmMiss, include=T}
 # Code to removing missing data from the `OA_activitydat_20190302_BIOL3207.csv` data frame.
-comp_data <- data[complete.cases(data),]
-comp_data
+#comp_data <- data[complete.cases(data),]
+#comp_data
 ```
 
 Second, drop out irrelevant columns and check that there are no spelling issues in `species` and `treatment`. Create a table of summary data that includes: 1) the mean, 2) the standard error and 3) the sample sizes of unique fish across ALL six fish species for each treatment. This will also help you detect any spelling errors. You can use the R package [`flextable`](https://ardata-fr.github.io/flextable-book/) to print out the results in a nice neat format! If you haven't heard about `flextable` spend 10 or so minutes having a look at it's functionality. It's incredible! You'll use this for tables throughout.
