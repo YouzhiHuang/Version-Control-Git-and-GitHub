@@ -184,7 +184,7 @@ ft
 >**Question 5**: The new version of your Rmarkdown file should now be up on *GitHub*. In the browser window click on your most recent commit. Have a look at the file versioning system. You will notice two files side-by-side. Describe what you notice is being presented online. What do the red and green highlights mean?
 
 ```{r answer5, echo=TRUE, eval=FALSE}
-## Write your answer here....remember to use '#" in front of your text.
+## The red and green highlights in the online presentation are the deleted and added lines of code respectively
 ```
 
 # **Task 5**
