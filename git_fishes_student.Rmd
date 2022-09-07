@@ -2,8 +2,8 @@
 title: "Git, GitHub & Ocean Acidification"
 author: "<your name and u number>"
 date: "`r Sys.Date()`"
-output: 
- bookdown::html_document2:
+output:
+  bookdown::html_document2: default
     code_folding: show
     number_sections: no
     toc: yes
@@ -107,7 +107,6 @@ Let's say that you added a new data folder that was inside an output folder (i.e
 
 path <- "./output/data/dt"
 
-
 write_csv(data, file = path)
 
 ```
@@ -121,7 +120,7 @@ First, write some code below to remove missing data
 
 ```{r rmMiss, include=T}
 # Code to removing missing data from the `OA_activitydat_20190302_BIOL3207.csv` data frame.
-comp_data <- data[complete.cases(data),]
+comp_data <-  na.omit(data)
 comp_data
 ```
 
@@ -129,13 +128,69 @@ Second, drop out irrelevant columns and check that there are no spelling issues 
 
 ```{r summaryTab}
 # Drop irrelevant columns
-Sp_Tr <- subset(comp_data,select=c("species","treatment"))
+Sp_Tr <- select(comp_data,-c(comment,loc,...1,animal_id,size))
 Sp_Tr
 # Check spelling in species and treatment but also generate a summary table
 unique(Sp_Tr$species)
 unique(Sp_Tr$treatment)
 summary(Sp_Tr)
 # Use flextable to render the summary table in a tidy format
+use_df_printer()
+set_flextable_defaults(
+  theme_fun = theme_booktabs,
+  big.mark = " ", 
+  font.color = "#666666",
+  border.color = "#666666",
+  padding = 3,
+)
+
+dat <- Sp_Tr |> 
+  group_by(treatment,species) |> 
+  summarise(n=n(),
+    across(
+      where(is.numeric), 
+      .fns = list(
+        avg = ~ mean(.x, na.rm = TRUE),
+        se = ~ sd(.x, na.rm = TRUE)/sqrt(n)
+      )
+    ),.groups = "drop" ) |>  subset(select=-c(n_avg,n_se))
+dat
+
+fdata <-  as_tibble(dat)
+
+ft <-  fdata|> 
+  flextable() |> 
+  separate_header() |> 
+  autofit() |> 
+  theme_booktabs(bold_header = TRUE) |>
+  footnote(i = 1, j = 1, 
+           part = "header",
+           ref_symbols = "1", value = as_paragraph("Arithmetic Mean")) |> 
+  footnote(i = 2, j = grep("_avg$", colnames(fdata), value = TRUE), 
+           part = "header",
+           ref_symbols = "2", value = as_paragraph("Arithmetic Mean")) |> 
+  footnote(i = 2, j = grep("_se$", colnames(fdata), value = TRUE), 
+           part = "header",
+           ref_symbols = "3", value = as_paragraph("Standard Deviation")) |> 
+  align(align = "center", part = "all", j = 4:7) |> 
+  merge_v(j = 1) |> 
+  valign(j = 1, valign = "top") |> 
+  colformat_double(digits = 3)
+ft
+```
+
+#```{r}
+
+SHIFT_TABLE <- shift_table(
+  x = Sp_Tr, cn_species = "species",
+  cn_grade = "LBNRIND",
+  cn_usubjid = "USUBJID",
+  cn_lab_cat = "LBTEST",
+  cn_is_baseline = "LBBLFL",
+  baseline_identifier = "Y",
+  grade_levels = c("LOW", "NORMAL", "HIGH"))
+SHIFT_TABLE
+
 table <- flextable(Sp_Tr)%>%
     theme_booktabs() %>%
     autofit(part = "all") %>%
@@ -145,7 +200,6 @@ table <- flextable(Sp_Tr)%>%
     set_caption(caption = "Table 8.1")  
 table
 ```
-
 **STOP**: Before moving on, it's a good time to establish some good *GitHub* practices. You have just done an important step. It's time to save this file, stage it and commit it so that you have a record. Push these changes up using *GitHub Desktop*. It's important to do this frequently. It's probably not needed after every line of code, but it's good to do this when you have completed an important coding step. Of course, there's no harm in doing it more often. It will provide fine-scale tracking for you!
 
 >**Question 5**: The new version of your Rmarkdown file should now be up on *GitHub*. In the browser window click on your most recent commit. Have a look at the file versioning system. You will notice two files side-by-side. Describe what you notice is being presented online. What do the red and green highlights mean?
