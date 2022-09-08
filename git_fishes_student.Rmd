@@ -263,7 +263,7 @@ Now, lets create a new figure in the code block below that simplifies the one pr
 
 ```{r, collabFig,fig.cap="A figure [@ref(fig:collabFig)]", echo=TRUE, eval=TRUE}
 # You want to make changes to your collaborators figure in Task 5. Maybe you want to create a figure that focuses only on three fish species instead of the 5. More specifically, chromis, lemon, and acantho. Add code here to revise their figure to do that.
-<<<<<<< Updated upstream
+
 comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
   geom_violin(trim = F) +facet_wrap(~species)+
   geom_boxplot(width = 0.45)+
@@ -272,9 +272,8 @@ comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x
   xlab('Species') + ylab('Activity (s)')+
   ggtitle("Box line plot of activity distribution for each species")+
   scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
-=======
 
->>>>>>> Stashed changes
+
 ```
 
 
@@ -303,7 +302,18 @@ figs
  ==============
   
   THIS IS YOUR PARTNERS CODE
-  
+<<<<<<< Updated upstream
+comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
+  geom_violin(trim = F) +facet_wrap(~species)+
+  geom_boxplot(width = 0.45)+
+  geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
+  theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
+  xlab('Species') + ylab('Activity (s)')+
+  ggtitle("Box line plot of activity distribution for each species")+
+  scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
+ =======
+
+>>>>>>> Stashed changes
  !>>>>>>>>928731027301723
 
 Resolving is easy. Decide on what changes you think are the best to proceed with and remove conflict markers. 
@@ -325,33 +335,47 @@ Here, run some statistical tests to determine, for each species, whether the con
 >**Stretch Task**: You can of course do this for each species seperately, but those who want a challenge, think about how you might use a loop or even some wrangling methods you have already learnt from the tidyverse to run these tests across all 6 species in a single block of code. If you're familiar with functions, you can even think about writing your own function! All these strategies will avoid having to copy and paste large chunks of code. If you're repeating anything, writing functions and loops are good ways to simplify.
 
 ```{r}
-#如果没有安装dplyr，rstatix和reshape2这三个R包，先去掉下面三行的#，运行进行安装
-#install.packages("dplyr")
-#install.packages("rstatix")
-#install.packages("reshape2")
-#加载dplyr，rstatix和reshape2这三个R包
-#library(dplyr)
+# load dplyr and rstatix R package
+library(dplyr)
 library(rstatix)
-#library(reshape2)
+# Run some statistical tests to determine for each species
 slresult= Sp_Tr %>%
   group_by(species) %>%
   t_test(sl ~ treatment,detailed = TRUE)
 actresult= Sp_Tr %>%
   group_by(species) %>%
   t_test(activity ~ treatment,detailed = TRUE)
-#输出result
-slresult
-actresult
+# output result
+result <- rbind(slresult,actresult)|> 
+convert_as_factor(.y., species) 
+result
 ```
 
 
-```{r, table1, echo=TRUE, eval=TRUE, tab.cap = "write a caption here"}
+```{r, table1, echo=TRUE, eval=TRUE, tab.cap = "t statistical tests to determine for each species"}
 # Using the resulting object created above, which should be a table with all the summary statistics, t, df and p-value for each species create a table. Note that there is a tab.cap argument in the chunk arguments. Write a caption here. 
+table1 <- result|> 
+  convert_as_factor(.y., species) |> 
+  as_grouped_data(groups = c(".y."))|> 
+  flextable() |> 
+  separate_header() |> 
+  autofit() |> 
+  theme_booktabs(bold_header = TRUE) |>
+  align(align = "center", part = "all", j = 1:16) |> 
+  merge_v(j = 1) |> 
+  valign(j = 1, valign = "top") |> 
+  colformat_double(digits = 2)|> 
+  autofit()
+table1
 ```
 
 Now that you have a table, you can reference it within a document. For example, you can make a call to Table \@ref(tab:table1) by referring to the name of the code chunk. When you knit the html it will create a hyperlink to your table and insert a legend above the table for you. How cool is that!?
 
-> **Question 8**: Pick one of your favorite species and write about the results to a reader. Write in the Rmarkdown file below what 1) the means and mean differences between control and acidification treatment is along with 2) the 95% confidence intervals of the difference
+> **Question 8**: Pick one of your favorite species and write about the results to a reader. Write in the Rmarkdown file below what 1) the means and mean differences between control and acidification treatment is along with 
+2) the 95% confidence intervals of the difference
+
+> 1) In humbug species, the mean values of standard length in fish for control and acidified treatment groups were 31.77 mm and 31.69 mm, respectively, with a mean difference of 0.09. The mean values of activity in fish were 34.92 (s / min) and 40.28 (s / min), respectively, with a mean difference of 5.37 (s / min). In humbug species, the mean values of standard length in fish for control and acidified treatment groups were 31.77 mm and 31.69 mm, respectively, with a mean difference of 0.09 mm.
+  2) The 95% confidence intervals for the differences ranged from -4.04 to 3.86 for the standard length of the fish and 0.83 to 9.90 for the activity of the fish.
 
 You can write your blurb below this. Before you do that, a few cool features of Rmarkdown. You can actually code in objects so that, when they are rendered they replace the inline code chunk with the result. To give you an example, an inline code chunk is written as follows: `r "add code here"`. When you render the document, whatever you place in the "add code here" section will be rendered. In this case, we are giving a string, so it simply just adds that in the place where the code is, render and see for yourself.  
 
@@ -359,24 +383,54 @@ Moving forward on that you can also add in an object and whatever that objects v
 
 This is all **VERY** cool because that means if your code or data change than you can update your entire report very fast. It's also 100% reproducible. We know exactly where every single value in your report comes from. This is all pretty helpful when you want to check your code and report side-by-side. Now that you have a bit more detail fill in the following:
 
-Mean activity for `r "species name here"` in the control group was `r "add code to place mean for control"` (s / min) compared to the OA treatment group, which was `r "mean for acidificaton treatment"` (s / min). The difference between control and OA treatment means was `r "code mean difference bw treatment"` (s / min) (95% CI: `r "code for lower CI"` to `r "code for upper CI"`). 
+Mean activity for `r "humbug"` in the control group was `r actresult$estimate2[which(actresult$species=="humbug")]` (s / min) compared to the OA treatment group, which was `r actresult$estimate1[which(actresult$species=="humbug")]` (s / min). The difference between control and OA treatment means was `r actresult$estimate[which(actresult$species=="humbug")]` (s / min) (95% CI: `r actresult$conf.low[which(actresult$species=="humbug")]` to `r actresult$conf.high[which(actresult$species=="humbug")]`). 
 
 Now, using what you just learnt, describe what the null hypothesis being tested was and provide statistical evidence (t-statistic, df, and p-value) to support your conclusion about whether we can reject the null hypothesis. Again, make sure you use in-line code. Write you answer below:
 
 **Write your answer here**
-
+The null hypothesis being tested is that the mean activity of humbug species is not statistically significantly different in the control and OA treatment groups. Based on the results of the t-test: t-statistic of `r actresult$statistic[which(actresult$species=="humbug")]`, df of `r actresult$df[which(actresult$species=="humbug")]` and p-value of `r actresult$p[which(actresult$species=="humbug")]` less than α = 0.05, the null hypothesis was rejected and the alternative hypothesis that the mean activity of the humbug species was statistically significantly different between the control and OA treatment groups was accepted (significant level α = 0.05).
 
 Re-analyse the data for a single species using permutations instead of a t-test. Do your results differ?
 
 >**Stretch Task**:  If you really want a challenge try doing permutation tests for each species. Again, loops, functions or tidyverse (or even combinations might help). 
 
-```{r, stretch2, echo=TRUE, eval=FALSE}
-# Add your code here.
+```{r, stretch2, echo=TRUE, eval=T}
+# 
+comp_data
+# Set the number of reps
+n_reps <- 1000
+permutation_result <- tibble()
+for (i in unique(comp_data$species)){
+# Create a vector to store the results
+samp_dist <- rep(0,n_reps) 
+   selected_data <- comp_data[which(comp_data$species == i),] 
+   for (j in 1:n_reps){
+    # Perform t-test on new permuted group data
+     permuted_t_test_results <- selected_data %>% mutate(treatment = treatment[sample(row_number())]) %>%
+         t.test(activity ~ treatment, data = .)
+    # Store the result data for each randomization     
+     samp_dist[j] <-permuted_t_test_results$statistic
+   }
+   
+   t_value <- comp_data[which(comp_data$species == i),] %>% t.test(activity ~ treatment, data = .) %>% .$statistic
+   permutation_pvalue <- permuted_t_test_results$p.value
+   permutation_result <- rbind(permutation_result, tibble(species = i,P_value = permutation_pvalue))
+   # Of the 10,000 (n_reps) random t-statistics generated from the sampling distribution that meet the null hypothesis, identify values that are more extreme than those calculated for our original data and store logical (TRUE/FALSE) results  in tibble 
+   plot_tibble <- tibble(value = samp_dist,extreme = (abs(samp_dist) > abs(t_value))) 
+  # Create a histogram in ggplot 
+   fig <- ggplot(plot_tibble,aes(x=value,fill=extreme))+geom_histogram(bins=200) 
+
+}
+fig
+permutation_result
+stat_result <- full_join(actresult,permutation_result)
+stat_result
 ```
 
 Below. Add a few sentences for the species (or multiple species) you talked about above to describe the permutation results:
 
-**Add your text and inline code chunks here**
+
+The results of the ranked combination test showed p-values greater than 0.05 in each species(ambon: `r permutation_result$P_value[which(permutation_result$species=="ambon")]` lemon: `r permutation_result$P_value[which(permutation_result$species=="lemon")]` chromis: `r permutation_result$P_value[which(permutation_result$species=="chromis")]` acantho: `r permutation_result$P_value[which(permutation_result$species=="acantho")]` humbug: `r permutation_result$P_value[which(permutation_result$species=="humbug")]` whitedams: `r permutation_result$P_value[which(permutation_result$species=="whitedams")]`), indicating that the mean activity of each species was not statistically significantly different between the control and OA treatment groups (significance level α= 0.05).
 
 # **Task 10**
 
