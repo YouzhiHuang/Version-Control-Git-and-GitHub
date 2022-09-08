@@ -241,6 +241,14 @@ Now, lets create a new figure in the code block below that simplifies the one pr
 
 ```{r, collabFig, echo=TRUE, eval=TRUE}
 # You want to make changes to your collaborators figure in Task 5. Maybe you want to create a figure that focuses only on three fish species instead of the 5. More specifically, chromis, lemon, and acantho. Add code here to revise their figure to do that.
+comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
+  geom_violin(trim = F) +facet_wrap(~species)+
+  geom_boxplot(width = 0.45)+
+  geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
+  theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
+  xlab('Species') + ylab('Activity (s)')+
+  ggtitle("Box line plot of activity distribution for each species")+
+  scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
 ```
 
 
