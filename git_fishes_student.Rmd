@@ -162,15 +162,17 @@ ft <-  fdata|>
   separate_header() |> 
   autofit() |> 
   theme_booktabs(bold_header = TRUE) |>
-  footnote(i = 1, j = 4, 
+  footnote(i = 1, j=4,
            part = "header",
-           ref_symbols = "1", value = as_paragraph("sl:Standard length of the fish in mm")) |>
-  footnote(i = 2, j = grep("_avg", colnames(fdata), value = TRUE), 
+           ref_symbols = "",
+           value = as_paragraph("sl: Standard length of the fish in mm")) |>
+  footnote(i = 2, j = grep("avg", colnames(fdata), value = TRUE), 
            part = "header",
-           ref_symbols = "2", value = as_paragraph("avg:Arithmetic Mean")) |> 
-  footnote(i = 2, j = grep("_se", colnames(fdata), value = TRUE), 
+           ref_symbols = "",
+            value = as_paragraph("avg: Arithmetic Mean")) |> 
+  footnote(i = 2, j = grep("se", colnames(fdata), value = TRUE), 
            part = "header",
-           ref_symbols = "3", value = as_paragraph("se:Standard Error")) |> 
+           ref_symbols = "", value = as_paragraph("se: Standard Error")) |> 
   align(align = "center", part = "all", j = 4:7) |> 
   merge_v(j = 1) |> 
   valign(j = 1, valign = "top") |> 
@@ -195,8 +197,15 @@ Ignoring figures can be important because they take up quite a lot of space in y
 
 ```{r, prettyfig, fig.align='center', fig.cap="add a legend here"}
 # ggplot figure showing mean activity for each treatment (Control, OA) for each species.
-
-
+fig1 <- comp_data %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
+  geom_violin(trim = F) +facet_wrap(~species)+
+  geom_boxplot(width = 0.45)+
+  geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
+  theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
+  xlab('Species') + ylab('Activity (s)')+
+  ggtitle("Box line plot of activity distribution for each species")+
+  scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
+fig1
 ```
 
 **Stretch Task**: The Clark et al. 2020 paper plots some pretty pictures on their figures. You have access to a folder called "pics/". Add the pics of the difference species from the "pics/" folder to your new plot. Explore the function `annotation_raster()` which might help you achieve this goal.
@@ -207,7 +216,7 @@ Now that you have the figure you may also want to write / save it as a separate 
 
 ```{r, savefig}
 # Use ggsave to save the figure
-
+ggsave("./output/figures/fig1.png",fig1)
 ```
 
 
