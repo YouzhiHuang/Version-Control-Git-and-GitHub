@@ -3,7 +3,7 @@ title: "Git, GitHub & Ocean Acidification"
 author: "<your name and u number>"
 date: "`r Sys.Date()`"
 output:
-  bookdown::html_document2: default
+ bookdown::html_document2:
     code_folding: show
     number_sections: no
     toc: yes
@@ -97,6 +97,7 @@ Write your answer in the code chunk below:
 path <- "./data/OA_activitydat_20190302_BIOL3207.csv"
 library(tidyverse) 
 data <- read_csv(path)
+data
 ```
 
 Let's say that you added a new data folder that was inside an output folder (i.e., `output/data`) to your working directory. The purpose of this folder is to store and track your cleaned up data frame after you have done all your data wrangling and corrections. 
@@ -105,9 +106,9 @@ Let's say that you added a new data folder that was inside an output folder (i.e
 
 ```{r, write, eval = FALSE, echo=TRUE}
 
-path <- "./output/data/dt"
+path1 <- "./output/data/dt"
 
-write_csv(data, file = path)
+write_csv(dt, file = path1)
 
 ```
 
@@ -118,9 +119,12 @@ We're ready for some coding! Lets do some coding and wrangling of the `OA_activi
 
 First, write some code below to remove missing data  
 
-```{r rmMiss, include=T}
-# Code to removing missing data from the `OA_activitydat_20190302_BIOL3207.csv` data frame.
-comp_data <-  na.omit(data)
+```{r rmMiss}
+## Code to removing missing data from the `OA_activitydat_20190302_BIOL3207.csv` data frame.
+library(tidyverse) 
+path <- "./data/OA_activitydat_20190302_BIOL3207.csv"
+data <- read_csv(path)
+comp_data <-  data %>% select(-...1)%>% drop_na()
 comp_data
 ```
 
@@ -128,7 +132,7 @@ Second, drop out irrelevant columns and check that there are no spelling issues 
 
 ```{r summaryTab}
 # Drop irrelevant columns
-Sp_Tr <- select(comp_data,-c(comment,loc,...1,animal_id,size))
+Sp_Tr <- comp_data %>% select(-c(comment,loc,animal_id,size))
 Sp_Tr
 # Check spelling in species and treatment but also generate a summary table
 unique(Sp_Tr$species)
@@ -164,15 +168,15 @@ ft <-  fdata|>
   theme_booktabs(bold_header = TRUE) |>
   footnote(i = 1, j=4,
            part = "header",
-           ref_symbols = "",
+           ref_symbols = " ",
            value = as_paragraph("sl: Standard length of the fish in mm")) |>
   footnote(i = 2, j = grep("avg", colnames(fdata), value = TRUE), 
            part = "header",
-           ref_symbols = "",
+           ref_symbols = " ",
             value = as_paragraph("avg: Arithmetic Mean")) |> 
   footnote(i = 2, j = grep("se", colnames(fdata), value = TRUE), 
            part = "header",
-           ref_symbols = "", value = as_paragraph("se: Standard Error")) |> 
+           ref_symbols = " ", value = as_paragraph("se: Standard Error")) |> 
   align(align = "center", part = "all", j = 4:7) |> 
   merge_v(j = 1) |> 
   valign(j = 1, valign = "top") |> 
@@ -198,7 +202,8 @@ Ignoring figures can be important because they take up quite a lot of space in y
 ```{r, prettyfig, fig.align='center', fig.cap="add a legend here"}
 # ggplot figure showing mean activity for each treatment (Control, OA) for each species.
 fig1 <- comp_data %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
-  geom_violin(trim = F) +facet_wrap(~species)+
+  geom_violin(trim = F) +
+  facet_wrap(~species)+
   geom_boxplot(width = 0.45)+
   geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
   theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
@@ -210,13 +215,28 @@ fig1
 
 **Stretch Task**: The Clark et al. 2020 paper plots some pretty pictures on their figures. You have access to a folder called "pics/". Add the pics of the difference species from the "pics/" folder to your new plot. Explore the function `annotation_raster()` which might help you achieve this goal.
 
+```{r}
+pathf <- "./data/pics/20220908160026.png"
+fig <- readPNG(pathf)
+figs <- comp_data %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
+  annotation_raster(fig,-Inf, Inf, 60, Inf)+
+  geom_violin(trim = F) +
+  facet_wrap(~species)+
+  geom_boxplot(width = 0.45)+
+  geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
+  theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
+  xlab('Species') + ylab('Activity (s)')+
+  ggtitle("Box line plot of activity distribution for each species")+
+  scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
+figs
+```
 Note the code chunk used to make the figure. It has a `fig.cap` argument. That means Rmarkdown knows it's a figure and it will allow you to create a figure reference call. In other words, we can refer to our Figure \@ref(fig:prettyfig) by referring to the label for the chunk. This will automatically make a legend for us too (assuming you add one in). The same concept applied to Tables but the legend goes above these.
 
 Now that you have the figure you may also want to write / save it as a separate file. Use `ggsave` function to save the figure(s) to your new `output/figures/`:
 
 ```{r, savefig}
 # Use ggsave to save the figure
-ggsave("./output/figures/fig1.png",fig1)
+ggsave("./output/figures/figs.png",figs)
 ```
 
 
@@ -224,6 +244,7 @@ ggsave("./output/figures/fig1.png",fig1)
 
 ```{r}
 ## Write your answer here
+# I will not see any changes under the specified path in *GitHub Desktop*, so they will not be uploaded to GitHub either.
 ```
 
 Last question for this task. I promise! It's important to think very carefully about what you track and ignore.
@@ -232,6 +253,7 @@ Last question for this task. I promise! It's important to think very carefully a
 
 ```{r, answer6}
 ## Add your answer here
+# When I added the `pics/` folder to my working directory, I drew a picture of each fish on the fig. I didn't want to keep track of the files in the pic/ folder on GitHub, even though they are .png files. Because it is not important that these pictures change, everyone can choose which pictures of each fish they like. A record of the changes to these pictures is not necessary. It would instead take up a lot of space.
 ```
 
 # **Task 6**
@@ -239,8 +261,9 @@ This task involves teaming up with a collaborator. Exchange *GitHub* username de
 
 Now, lets create a new figure in the code block below that simplifies the one produced in **Task 5**. Instead of all species, lets just plot three of the species (chromis, lemon, and acantho). In the figure code chunk make sure you add the necessary arguments (e.g., `fig.cap`) so that you can refer to Figure \@ref(fig:collabFig).
 
-```{r, collabFig, echo=TRUE, eval=TRUE}
+```{r, collabFig,fig.cap="A figure [@ref(fig:collabFig)]", echo=TRUE, eval=TRUE}
 # You want to make changes to your collaborators figure in Task 5. Maybe you want to create a figure that focuses only on three fish species instead of the 5. More specifically, chromis, lemon, and acantho. Add code here to revise their figure to do that.
+<<<<<<< Updated upstream
 comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x = treatment, y = activity, fill = treatment)) +
   geom_violin(trim = F) +facet_wrap(~species)+
   geom_boxplot(width = 0.45)+
@@ -249,6 +272,9 @@ comp_data %>% filter(species == c("chromis","lemon","acantho")) %>% ggplot(aes(x
   xlab('Species') + ylab('Activity (s)')+
   ggtitle("Box line plot of activity distribution for each species")+
   scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
+=======
+
+>>>>>>> Stashed changes
 ```
 
 
@@ -258,7 +284,22 @@ This task involves creating and resolving conflicts. Conflicts in files are deno
  <<<<<<<<< HEAD
   
   THIS IS YOUR CODE
-  
+```{r}
+pathf <- "./data/pics/20220908210851.png"
+fig <- readPNG(pathf)
+figs <- comp_data %>%  filter(species==c("chromis","lemon","acantho"))%>%
+  ggplot(aes(x = treatment, y = activity, fill = treatment)) +
+  annotation_raster(fig,-Inf, Inf, 60, Inf)+
+  geom_violin(trim = F) +
+  facet_wrap(~species)+
+  geom_boxplot(width = 0.45)+
+  geom_jitter(aes(colour = treatment),size = 0.9,width=0.1,height=0)+
+  theme_bw(base_size = 14)+ theme_bw(base_size = 12)+
+  xlab('Species') + ylab('Activity (s)')+
+  ggtitle("Box line plot of activity distribution for each species")+
+  scale_fill_manual(values = c("#FCC7C3","#97E3AD","#BED7FF"))
+figs
+```
  ==============
   
   THIS IS YOUR PARTNERS CODE
@@ -283,9 +324,26 @@ Here, run some statistical tests to determine, for each species, whether the con
 
 >**Stretch Task**: You can of course do this for each species seperately, but those who want a challenge, think about how you might use a loop or even some wrangling methods you have already learnt from the tidyverse to run these tests across all 6 species in a single block of code. If you're familiar with functions, you can even think about writing your own function! All these strategies will avoid having to copy and paste large chunks of code. If you're repeating anything, writing functions and loops are good ways to simplify.
 
-```{r, stats, echo=TRUE, eval=TRUE}
-# Add your code here
+```{r}
+#如果没有安装dplyr，rstatix和reshape2这三个R包，先去掉下面三行的#，运行进行安装
+#install.packages("dplyr")
+#install.packages("rstatix")
+#install.packages("reshape2")
+#加载dplyr，rstatix和reshape2这三个R包
+#library(dplyr)
+library(rstatix)
+#library(reshape2)
+slresult= Sp_Tr %>%
+  group_by(species) %>%
+  t_test(sl ~ treatment,detailed = TRUE)
+actresult= Sp_Tr %>%
+  group_by(species) %>%
+  t_test(activity ~ treatment,detailed = TRUE)
+#输出result
+slresult
+actresult
 ```
+
 
 ```{r, table1, echo=TRUE, eval=TRUE, tab.cap = "write a caption here"}
 # Using the resulting object created above, which should be a table with all the summary statistics, t, df and p-value for each species create a table. Note that there is a tab.cap argument in the chunk arguments. Write a caption here. 
