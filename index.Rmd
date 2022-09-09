@@ -188,7 +188,7 @@ drop1(lem3, test='F')
 summary(lem3) # final model
 ```
 
-```{r}
+
 
 # visual checks of model assumptions
 # replace model name as needed
@@ -207,7 +207,7 @@ abline(h = 0)
 plot(x = lemdat$sl, y = E1, xlab = "standard length", ylab = 'residuals') 
 abline(h = 0)
 
-```
+
 
 
 
@@ -330,7 +330,7 @@ summary(amb3)
 
 ```
 
-```{r}
+
 # nothing significant.
 # replace model name as needed
 # ensure dataframe is same one used to fit model
@@ -359,7 +359,7 @@ abline(h = 0)
 
 # statistics end
 
-```
+
 
 
 

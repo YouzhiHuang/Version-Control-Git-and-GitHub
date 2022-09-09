@@ -19,7 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # import data
 oaa <- read.csv('OA_activitydat_20190302.csv', header=TRUE)
-
 library(car)
 library(MASS)
 
