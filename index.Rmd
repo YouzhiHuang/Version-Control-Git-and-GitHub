@@ -2,7 +2,17 @@
 title: "index"
 author: "u7457916 Youzhi Huang"
 date: "2022/9/9"
-output: html_document
+output:
+  html_document:
+    toc: yes
+    toc_depth: '6'
+    df_print: paged
+  bookdown::html_document2:
+    code_folding: hide
+    number_sections: no
+    toc: yes
+    toc_depth: 6
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE}
